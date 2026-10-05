@@ -1,0 +1,68 @@
+.new-chat-form {
+    display: flex;
+    gap: 8px;
+    padding: 10px 16px;
+    background: white;
+}
+
+.new-chat-form {
+    border-bottom: 1px solid var(--border);
+}
+
+/* Поле в стиле поиска: лупа слева, крестик справа */
+.new-chat-form .input-field {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    min-height: 42px;
+    padding: 0 8px 0 14px;
+    border: 1px solid var(--black);
+    border-radius: 24px;
+}
+
+/* При фокусе рамка становится зелёной и толще (тень, чтобы поле не «прыгало») */
+.new-chat-form .input-field:focus-within {
+    border-color: var(--green);
+    box-shadow: 0 0 0 1px var(--green);
+}
+
+.new-chat-form .search-icon {
+    flex-shrink: 0;
+    width: 20px;
+    height: 20px;
+    color: var(--text-muted);
+}
+
+.new-chat-form input {
+    flex: 1;
+    min-width: 0;
+    padding: 10px 0;
+    border: none;
+    outline: none;
+    background: transparent;
+}
+
+.new-chat-form .clear-button {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--text);
+    cursor: pointer;
+}
+
+.new-chat-form .clear-button:hover {
+    background: var(--hover);
+}
+
+.new-chat-form .clear-button svg {
+    width: 20px;
+    height: 20px;
+}

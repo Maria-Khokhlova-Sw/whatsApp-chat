@@ -1,0 +1,14 @@
+/* Палитра приложения */
+:root {
+    --green: #1DAA61;
+    --chat-bg: #efeae2;
+    --back-grey: #F7F5F3;
+    --bubble-out: #D9FDD3;
+    --bubble-in: #ffffff;
+    --panel-bg: #fcf5eb;
+    --text: #111b21;
+    --text-muted: #667781;
+    --border: #e9edef;
+    --hover: #f5f6f6;
+    --black: #0A0A0A;
+}

@@ -1,0 +1,50 @@
+.message-input {
+    display: flex;
+    gap: 8px;
+    padding: 10px 16px;
+    background: white;
+}
+
+/* Рамка теперь у обёртки: поле и кнопка внутри неё */
+.message-input .input-field {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    min-height: 42px;
+    padding: 0 4px 0 24px;
+    border: 1px solid var(--black);
+    border-radius: 24px;
+}
+
+.message-input input {
+    flex: 1;
+    min-width: 0;
+    padding: 10px 0;
+    border: none;
+    outline: none;
+    background: transparent;
+}
+
+.message-input button {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    border: none;
+    background: var(--green);
+    color: #fff;
+    cursor: pointer;
+    border-radius: 50%;
+}
+
+.message-input button svg {
+    width: 20px;
+    height: 20px;
+}
+
+.message-input button:hover {
+    background: var(--green);
+}

@@ -1,0 +1,73 @@
+.bubble {
+    position: relative;
+    max-width: 65%;
+    padding: 6px 8px;
+    border-radius: 8px;
+    box-shadow: 0 1px 0.5px rgba(0, 0, 0, 0.13);
+}
+
+.bubble.incoming {
+    align-self: flex-start;
+    background: var(--bubble-in);
+    display: flex;
+    align-items: flex-end;
+    gap: 4px;
+}
+
+.bubble.outgoing {
+    align-self: flex-end;
+    background: var(--bubble-out);
+    display: flex;
+    align-items: flex-end;
+    gap: 4px;
+}
+
+/* Уголок у первого сообщения в группе: у моих справа, у входящих слева */
+.bubble.outgoing.tail {
+    border-top-right-radius: 0;
+}
+
+.bubble.outgoing.tail::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: -8px;
+    width: 8px;
+    height: 13px;
+    background: var(--bubble-out);
+    clip-path: polygon(0 0, 100% 0, 0 100%);
+}
+
+.bubble.incoming.tail {
+    border-top-left-radius: 0;
+}
+
+.bubble.incoming.tail::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -8px;
+    width: 8px;
+    height: 13px;
+    background: var(--bubble-in);
+    clip-path: polygon(0 0, 100% 0, 100% 100%);
+}
+
+.bubble-text {
+    white-space: pre-wrap;
+    word-break: break-word;
+    font-size: 14.5px;
+}
+
+.bubble-time {
+    margin-top: 2px;
+    font-size: 11px;
+    color: var(--text-muted);
+    text-align: right;
+}
+
+@media (max-width:900px) {
+    .bubble {
+        max-width: 85%;
+    }
+}
