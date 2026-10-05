@@ -1,0 +1,53 @@
+# Сборка и публикация сайта на GitHub Pages при каждом push в main
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  # позволяет запустить деплой вручную со вкладки Actions
+  workflow_dispatch:
+
+# права, которые нужны для публикации на GitHub Pages
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# не запускать два деплоя одновременно
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Скачать код
+        uses: actions/checkout@v4
+
+      - name: Установить Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Установить зависимости
+        run: npm ci
+
+      - name: Собрать проект
+        run: npm run build
+
+      - name: Настроить Pages
+        uses: actions/configure-pages@v5
+
+      - name: Загрузить папку dist
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./dist
+
+      - name: Опубликовать
+        id: deployment
+        uses: actions/deploy-pages@v4

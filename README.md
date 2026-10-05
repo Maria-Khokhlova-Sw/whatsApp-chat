@@ -1,32 +1,105 @@
-# React + TypeScript + Vite
+# WhatsApp Chat — GREEN-API
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+Веб-интерфейс для отправки и получения текстовых сообщений WhatsApp через сервис [GREEN-API](https://green-api.com/).
 
-Currently, two official plugins are available:
+Тестовое задание на должность фронтенд-разработчика React. В задании предлагалось сделать чат для MAX, а WhatsApp или Telegram допускались как альтернатива. Я выбрала **WhatsApp**.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+**Онлайн-версия:** 
 
-## React Compiler
+## Возможности
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- Вход по учётным данным инстанса GREEN-API (`idInstance`, `apiTokenInstance`, `apiUrl`)
+- Создание чата по номеру телефона в любом формате: `+7 (962) 045-79-45`, `89620457945`, `79620457945`
+- Отправка текстовых сообщений методом [SendMessage](https://green-api.com/docs/api/sending/SendMessage/)
+- Получение входящих сообщений через [HTTP API](https://green-api.com/docs/api/receiving/technology-http-api/) (`ReceiveNotification` + `DeleteNotification`)
+- Если пишет новый собеседник, чат с ним появляется в списке автоматически
 
-## Expanding the Oxlint configuration
+## Стек
 
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
+- React 19
+- TypeScript
+- Vite
 
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+Сторонних библиотек нет: запросы к API сделаны на встроенном `fetch`, стили — на обычном CSS.
+
+## Подготовка инстанса GREEN-API
+
+Без этих шагов приложение не сможет получать ответы.
+
+1. Зарегистрируйтесь в [личном кабинете GREEN-API](https://console.green-api.com/) и создайте инстанс **WhatsApp** (подойдёт бесплатный тариф Developer).
+2. Авторизуйте инстанс: на телефоне откройте WhatsApp → **Настройки → Связанные устройства → Привязка устройства** и отсканируйте QR-код из личного кабинета. Статус инстанса должен стать `authorized`.
+3. В настройках инстанса:
+   - **включите получение уведомлений о входящих сообщениях** (`incomingWebhook: yes`);
+   - **оставьте поле `webhookUrl` пустым**. Приложение забирает сообщения из очереди через HTTP API; если указать webhookUrl, уведомления будут уходить туда, а не в очередь.
+4. Скопируйте из личного кабинета `idInstance`, `apiTokenInstance` и `apiUrl`. Адрес `apiUrl` у разных инстансов разный, например `https://7107.api.greenapi.com`.
+
+## Локальный запуск
+
+Нужен [Node.js](https://nodejs.org/) версии 20.19+ или 22.12+ (требование Vite).
+
+```bash
+git clone https://github.com/Maria-Khokhlova-Sw/whatsApp-chat.git
+cd whatsApp-chat
+npm install
+npm run dev
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+Откройте адрес, который выведет Vite (обычно http://localhost:5173).
+
+Сборка production-версии:
+
+```bash
+npm run build
+npm run preview
+```
+
+## Как пользоваться
+
+1. Введите `idInstance`, `apiUrl` и `apiTokenInstance` и нажмите **Войти**.
+2. В поле слева введите номер получателя и нажмите **Enter**: откроется чат.
+3. Напишите сообщение и нажмите **Enter** или кнопку отправки: сообщение уйдёт в WhatsApp получателя.
+4. Когда получатель ответит, ответ появится в чате в течение нескольких секунд.
+
+## Как это устроено
+
+**Отправка.** `POST {apiUrl}/waInstance{idInstance}/sendMessage/{apiTokenInstance}` с телом `{ chatId, message }`. Номер телефона приводится к формату `79620457945@c.us`: убираются все символы, кроме цифр, а ведущая `8` у российских номеров заменяется на `7`.
+
+**Получение.** После входа запускается цикл (long polling):
+
+1. `receiveNotification?receiveTimeout=5`: сервер ждёт новое уведомление до 5 секунд;
+2. если пришло входящее текстовое сообщение (`incomingMessageReceived`), оно добавляется в нужный чат. Учитываются оба формата текста: `textMessage` и `extendedTextMessage`;
+3. `deleteNotification` удаляет уведомление из очереди. Удаляются все уведомления, включая служебные, иначе очередь остановится на первом из них;
+4. цикл повторяется. При выходе со страницы он корректно останавливается.
+
+Повторно полученные сообщения не дублируются: перед добавлением проверяется их `idMessage`.
+
+## Структура проекта
+
+```
+src/
+├── api/greenApi.ts            # запросы к GREEN-API: sendMessage, receiveNotification, deleteNotification
+├── hooks/useNotifications.ts  # цикл получения входящих сообщений
+├── utils/phone.ts             # номер телефона → chatId
+├── types/index.ts             # типы данных приложения и ответов API
+├── components/
+│   ├── LoginForm.tsx          # экран входа
+│   ├── Sidebar.tsx            # левая колонка: создание чата и список чатов
+│   ├── NewChatForm.tsx        # поле ввода номера
+│   ├── ChatWindow.tsx         # окно переписки
+│   ├── MessageBubble.tsx      # одно сообщение
+│   └── MessageInput.tsx       # поле ввода сообщения
+├── styles/                    # общие стили: цвета и база
+└── App.tsx                    # состояние приложения: учётные данные, чаты, активный чат
+```
+
+## Ограничения
+
+Интерфейс намеренно сделан минимальным, как требует задание:
+
+- поддерживаются только **текстовые** сообщения и только **личные** чаты;
+- история переписки хранится в памяти страницы и **сбрасывается при обновлении**. Загрузка истории с сервера в задание не входила;
+- учётные данные нигде не сохраняются, после обновления страницы нужно войти снова.
+
+## Безопасность
+
+`apiTokenInstance` даёт полный доступ к вашему аккаунту WhatsApp через API. Приложение не сохраняет токен и отправляет его только на указанный `apiUrl`. Не публикуйте токен в коде, скриншотах и issue.
