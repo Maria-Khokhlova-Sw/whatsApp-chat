@@ -79,7 +79,7 @@ function App() {
                 {activeChatObj ? (
                     <ChatWindow chat={activeChatObj} onSend={handleSend}/>
                 ) : (
-                    <div>Выберите чат или создайте новый</div>
+                    <div className="empty-state">Выберите чат или создайте новый</div>
                 )}
             </main>
         </div>

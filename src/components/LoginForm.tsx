@@ -1,5 +1,6 @@
 import {useState} from "react";
 import type {Credentials} from "../types";
+import "./LoginForm.css";
 
 type LoginFormProps= {
     onLogin: (credentials: Credentials) => void;
@@ -21,17 +22,19 @@ export default function LoginForm({onLogin}: LoginFormProps) {
     }
 
     return (
-        <form onSubmit={handleSubmit}>
+        <form className="login-form" onSubmit={handleSubmit}>
+            <h2>Вход в GREEN-API</h2>
+            <p className="login-hint">Данные инстанса из console.green-api.com</p>
             <input value={id}
                    onChange={(e) => setId(e.target.value)}
-                   placeholder="id" required/>
+                   placeholder="idInstance" required/>
             <input value={apiUrl}
                    onChange={(e) => setApiUrl(e.target.value)}
                    placeholder="apiUrl" required/>
             <input value={token}
                    onChange={(e) => setToken(e.target.value)}
-                   placeholder="token" required type="password"/>
-            <button type="submit" > Войти</button>
+                   placeholder="apiTokenInstance" required type="password"/>
+            <button type="submit">Войти</button>
         </form>
     )
 

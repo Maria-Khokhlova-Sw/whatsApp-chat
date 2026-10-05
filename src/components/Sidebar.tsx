@@ -1,5 +1,6 @@
 import type {Chat} from "../types";
 import NewChatForm from "./NewChatForm";
+import "./Sidebar.css";
 
 type SidebarProps = {
     chats: Chat[];
