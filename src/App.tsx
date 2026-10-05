@@ -6,6 +6,7 @@ import {toChatId} from "./utils/phone.ts";
 import Sidebar from "./components/Sidebar.tsx";
 import ChatWindow from "./components/ChatWindow.tsx";
 import {sendMessage} from "./api/greenApi.ts";
+import {useNotifications} from "./hooks/useNotifications.ts";
 
 function App() {
     const [credentials, setCredentials] = useState<Credentials | null>(null);
@@ -26,15 +27,25 @@ function App() {
 
     const activeChatObj = chats.find((chat) => chat.chatId === activeChat);
 
-    const addMessage =(chatId: string, msg: Message) => {
-        setChats((prev) =>
-            prev.map((chat) =>
-                chat.chatId === chatId
-                    ? { ...chat, message: [...chat.message, msg] }
-                    : chat
-            )
-        )
-    }
+    const addMessage = (chatId: string, msg: Message) => {
+        setChats((prev) => {
+            const exists = prev.some((chat) => chat.chatId === chatId);
+
+            if (!exists) {
+                return [...prev, {
+                    chatId,
+                    phone: chatId.replace('@c.us', ''),
+                    message: [msg],
+                }];
+            }
+
+            return prev.map((chat) => {
+                if (chat.chatId !== chatId) return chat;
+                if (chat.message.some((m) => m.id === msg.id)) return chat;
+                return { ...chat, message: [...chat.message, msg] };
+            });
+        });
+    };
 
     const handleSend = async (text: string) => {
         if (!credentials || !activeChat) return;
@@ -51,6 +62,7 @@ function App() {
             alert('Не удалось отправить сообщение');
         }
     };
+    useNotifications(credentials, addMessage);
 
     if (!credentials) {
         return <LoginForm onLogin={setCredentials}/>;
