@@ -5,7 +5,6 @@
     background: white;
 }
 
-/* Рамка теперь у обёртки: поле и кнопка внутри неё */
 .message-input .input-field {
     display: flex;
     align-items: center;
